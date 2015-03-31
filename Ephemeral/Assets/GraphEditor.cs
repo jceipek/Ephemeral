@@ -33,10 +33,18 @@ public class GraphEditor : MonoBehaviour {
 
 		if (_tempConnection != null && _sourceNode != null) {
 			_tempConnection.SetTemp(_sourceNode, mousePos);
+			Collider2D res = Physics2D.OverlapCircle((Vector2)mousePos,0.5f);
+ 			if (res != null) {
+ 				var node = res.GetComponent<Node>();
+ 				if (node != null) {
+ 					Vector3 dest = (_sourceNode.transform.position - node.transform.position).normalized * node.ActivationRadius + node.transform.position;
+ 					_tempConnection.SetTemp(_sourceNode, dest);
+ 				}
+ 			}
 		}
 
 		if (Input.GetMouseButtonDown(0)) {
-			Collider2D res = Physics2D.OverlapPoint((Vector2)mousePos);
+			Collider2D res = Physics2D.OverlapCircle((Vector2)mousePos,0.5f);
  			if (res != null) {
  				var node = res.GetComponent<Node>();
  				if (node != null) {
@@ -54,7 +62,7 @@ public class GraphEditor : MonoBehaviour {
 
 		if (Input.GetMouseButtonUp(0) && _tempConnection != null) {
 			if (_sourceNode == null) { return; }
- 			Collider2D res = Physics2D.OverlapPoint((Vector2)mousePos);
+ 			Collider2D res = Physics2D.OverlapCircle((Vector2)mousePos,0.5f);
  			if (res != null) {
  				var node = res.GetComponent<Node>();
  				if (node != null) {
@@ -63,7 +71,12 @@ public class GraphEditor : MonoBehaviour {
  					_sourceNode.AddNodeConnection(node);
  				}
  			} else {
- 				Destroy(_tempConnection.gameObject);
+ 				var nodeObj = Instantiate(_nodePrefab, mousePos, Quaternion.identity) as GameObject;
+ 				var node = nodeObj.GetComponent<Node>();
+				_tempConnection.SetNodes(_sourceNode, node);
+				node.AddNodeConnection(_sourceNode);
+				_sourceNode.AddNodeConnection(node);
+ 				// Destroy(_tempConnection.gameObject);
  			}
  			_tempConnection = null;
  			_sourceNode = null;

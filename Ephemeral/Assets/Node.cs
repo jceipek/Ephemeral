@@ -8,6 +8,7 @@ public class Node : MonoBehaviour {
 
 	[SerializeField]
 	float _activationEnergy = 0.3f;
+	float _visualActivationEnergy = 0f;
 
 	[SerializeField]
 	float _energy = 0.3f;
@@ -19,7 +20,7 @@ public class Node : MonoBehaviour {
 		get { return Mathf.Sqrt(_visualEnergy + 0.0f); }
 	}
 	public float ActivationRadius {
-		get { return Mathf.Sqrt(_activationEnergy + 0.0f); }
+		get { return Mathf.Sqrt(_visualActivationEnergy + 0.0f); }
 	}
 
 	float _transmitSpeed = 1f;
@@ -82,6 +83,20 @@ public class Node : MonoBehaviour {
 			_audioSource.Play();
 		}
 
+		float activationStep = _visualEnergySpeed * Time.deltaTime;
+		if (_visualActivationEnergy < _activationEnergy) {
+			_visualActivationEnergy += activationStep;
+			if (ActivationRadius > 0f) {
+				_circleRenderer.InnerStrokeRadius = ActivationRadius;
+				_circleRenderer.OuterStrokeRadius = ActivationRadius + 0.1f;
+			}
+		} else {
+			_visualActivationEnergy = _activationEnergy;
+			if (ActivationRadius > 0f) {
+				_circleRenderer.InnerStrokeRadius = ActivationRadius;
+				_circleRenderer.OuterStrokeRadius = ActivationRadius + 0.1f;
+			}
+		}
 
 		float stepSize = _visualEnergySpeed * Time.deltaTime;
 		if (_visualEnergy + stepSize < _energy) {
